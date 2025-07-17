@@ -238,7 +238,7 @@ VALUES   (
   );
 
 --2. Tony Stark Insert
-Insert Tony Stark record (account_id and account_type auto-generated):
+
    INSERT INTO public.account (
     account_firstname, 
     account_lastname, 
