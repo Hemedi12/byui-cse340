@@ -1,70 +1,46 @@
-/* ******************************************
- * This server.js file is the primary file of the 
- * application. It is used to control the project.
- *******************************************/
-/* ***********************
- * Require Statements
- *************************/
-const express = require("express")
-const env = require("dotenv").config()
-const baseController = require("./controllers/baseController")
-const app = express()
-const static = require("./routes/static")
-const expressLayouts = require("express-ejs-layouts")
-const inventoryRoute = require("./routes/inventoryRoute")
-const utilities = require("./utilities/") 
+// In your main server file (e.g., server.js)
+const express = require("express");
+const expressLayouts = require("express-ejs-layouts");
+const app = express();
+const staticRoutes = require("./routes/static");
+const inventoryRoute = require("./routes/inventoryRoute");
+const baseController = require("./controllers/baseController");
+const utilities = require("./utilities/"); // If you need this for error handling, etc.
 
-/**********************************************
- *View Engine and Templates
- **********************************************/
-app.set("view engine", "ejs")
-app.use(expressLayouts)
-app.set("layout", "./layouts/layout") // not at views root
+// View engine setup
+app.set("view engine", "ejs");
+app.use(expressLayouts);
+app.set("layout", "./layouts/layout"); // default layout
 
-/* ***********************
- * Routes
- *************************/
-app.use(static)
+// Static Routes
+app.use(staticRoutes);
 
-//index route
-// app.get("/", function(req, res){
-//   res.render("index", {title: "Home"})
-// })
-app.get("/", baseController.buildHome)
+// Index route
+app.get("/", utilities.handleErrors(baseController.buildHome)); // Using handleErrors middleware
+
 // Inventory routes
-app.use("/inv", inventoryRoute)
+app.use("/inv", inventoryRoute);
 
-// File Not Found Route - must be last route in list
+// Other routes and error handling...
+
+// Example 404 handler
 app.use(async (req, res, next) => {
-  next({status: 404, message: 'Sorry, we appear to have lost that page.'})
+  next({status: 404, message: 'Sorry, we couldn\'t find that route.'})
 })
 
-
-/* ***********************
-* Express Error Handler
-* Place after all other middleware
-*************************/
+// Express Error Handler
 app.use(async (err, req, res, next) => {
   let nav = await utilities.getNav()
-  console.error(`Error at: "${req.originalUrl}": ${err.message}`)
-  if(err.status == 404){ message = err.message} else {message = 'Oh no! There was a crash. Maybe try a different route?'}
+  console.error(`Error at: ${err.stack}`)
   res.render("errors/error", {
     title: err.status || 'Server Error',
-    message,
+    message: err.message,
     nav
   })
 })
-/* ***********************
- * Local Server Information
- * Values from .env (environment) file
- *************************/
-const port = process.env.PORT
-const host = process.env.HOST
 
-/* ***********************
- * Log statement to confirm server operation
- *************************/
+// Port setup
+const port = process.env.PORT || 5500;
 app.listen(port, () => {
-  console.log(`app listening on ${host}:${port}`)
-})
-utilities.handleErrors(baseController.buildHome)
+    console.log(`App is listening on port ${port}`);
+});
