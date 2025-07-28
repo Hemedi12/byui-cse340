@@ -1,4 +1,3 @@
-
 const pool = require("../database/")
 
 /* ***************************
@@ -27,8 +26,5 @@ async function getInventoryByClassificationId(classification_id) {
   }
 }
 
-// models/inventory-model.js
-module.exports = { 
-  getClassifications, 
-  getInventoryByClassificationId 
-};
+module.exports = {getClassifications}
+module.exports = {getClassifications, getInventoryByClassificationId};
